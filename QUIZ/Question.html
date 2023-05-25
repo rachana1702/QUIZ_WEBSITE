@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>demo</title>
+    <style>
+        .container {
+            background-color: white;
+            height: 100vh;
+            width: 100vw;
+            margin: -10px;
+        }
+
+        .questions {
+            max-width: 400px;
+            min-height: 4em;
+            border-radius: 1em;
+            padding: 1em;
+            position: relative;
+            top: 25%;
+            background-color: bisque;
+        }
+
+        .options {
+            display: grid;
+            column-gap: 1em;
+            width: 400px;
+            grid-template-columns: 1fr 1fr;
+            row-gap: 1em;
+            position: absolute;
+            top: 50%;
+            text-align: center;
+        }
+
+        .options>a,
+        button>a {
+            text-decoration: none;
+            color: black;
+        }
+
+        .options>a>div {
+            background-color: rgb(196, 236, 255);
+            padding: .7em;
+            border-radius: .5em;
+            border-width: "1px";
+            border-color: bisque;
+            border-style: solid;
+        }
+
+        .options>a>div:hover {
+            background-color: rgb(238, 190, 110);
+        }
+
+        button {
+            position: absolute;
+            top: 75%;
+            border-radius: .5em;
+            padding: 1em;
+        }
+    </style>
+</head>
+
+<body onresize="resize()">
+    <div class="container">
+        <div class="questions" id="questions">
+            Q)question
+        </div>
+        <div class="options" id="options">
+            <a href="#" onclick="select_option(this)">
+                <div class="options-item">option 1</div>
+            </a>
+            <a href="#" onclick="select_option(this)">
+                <div class="options-item">option 2</div>
+            </a>
+            <a href="#" onclick="select_option(this)">
+                <div class="options-item">option 3</div>
+            </a>
+            <a href="#" onclick="select_option(this)">
+                <div class="options-item">option 4</div>
+            </a>
+        </div>
+        <button id="button" onclick="submit(this)" disabled><a href="#">Submit</a></button>
+    </div>
+    <script>
+        var questions = ["Which of the following cannot be a variable name in C?",
+            "Java Interpreter is used for which purpose?",
+            "'OS' computer abbreviation usually means ?",
+            "In which decade with the first transatlantic radio broadcast occur?",];
+        var options = [["true", "volatile", "friend", "export"],
+        ["Compile Java program", "Execute class file", "Both 1 and 2", "None of these"],
+        ["Order of Significance", "Open Software", "Operating System", "Optical Sensor"],
+        ["1850s", "1860s", "1870s", "1900s"],
+        ];
+        var answers = [1, 1, 2, 3];
+        if (!sessionStorage.currentQuestion) { sessionStorage.currentQuestion = 0; sessionStorage.score = 0; sessionStorage.questions = answers.length }
+        const question_block = document.getElementById("questions");
+        const options_block = document.getElementById("options");
+        const button_block = document.getElementById("button");
+        resize();
+
+        function resize() {
+            if (sessionStorage.currentQuestion >= answers.length) {
+                window.location.replace("finish.html");
+            } else {
+                document.getElementById("questions").innerHTML = questions[sessionStorage.currentQuestion];
+                var option = document.getElementsByClassName("options-item");
+                for (i = 0; i < option.length; i++) {
+                    option[i].innerHTML = options[sessionStorage.currentQuestion][i];
+                }
+            }
+            button_block.style.left = window.innerWidth / 2 - button_block.offsetWidth / 2 + "px";
+            options_block.style.left = window.innerWidth / 2 - options_block.offsetWidth / 2 + "px";
+            question_block.style.left = window.innerWidth / 2 - question_block.offsetWidth / 2 + "px";
+        }
+
+        function select_option(arg) {
+            let options = document.getElementsByClassName("options-item");
+            document.getElementById("button").removeAttribute("disabled");
+            for (var i = 0; i < options.length; i++) {
+                if (options[i] == arg.children[0]) {
+                    sessionStorage.select_option = i;
+                }
+                options[i].style.borderColor = "bisque";
+            }
+            arg.children[0].style.borderColor = "red";
+
+        }
+
+        function submit(arg) {
+            arg.innerHTML = "<a href=\"#\">Next</a>";
+            arg.setAttribute("onclick", "next()");
+            console.log("option selected is " + sessionStorage.select_option);
+            if (sessionStorage.select_option == answers[sessionStorage.currentQuestion]) {
+                sessionStorage.score = Number(sessionStorage.score) + 1;
+            }
+            let child = document.getElementsByClassName("options-item");
+            child[answers[sessionStorage.currentQuestion]].style.borderColor = "green";
+            while (child.length != 0) {
+                child[0].parentElement.removeAttribute("onclick");
+                child[0].classList.remove("options-item");
+            }
+            sessionStorage.currentQuestion = Number(sessionStorage.currentQuestion) + 1;
+            console.log("score= " + sessionStorage.score);
+        }
+
+        function next() {
+            if (Number(sessionStorage.currentQuestion) < answers.length) {
+                window.location.reload();
+            } else {
+                window.location.replace("end.html");
+            }
+        }
+
+    </script>
+</body>
+
+</html>
